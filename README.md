@@ -58,4 +58,4 @@ This system was deployed and validated in a real livestock pen environment, succ
     ```
 
 ---
-**Developed by Faisal Atmaja** *Electrical Engineering - Focus on Telecommunications & AI* [LinkedIn Profile](LINK_LINKEDIN_KAMU) | [Portfolio](LINK_WEBSITE_KAMU)
+**Developed by Faisal Atmaja** *Electrical Engineering - Focus on AI* [LinkedIn Profile](www.linkedin.com/in/faisal-atmaja-b38330356) 
