@@ -18,7 +18,7 @@ Traditional livestock monitoring is labor-intensive and prone to human error. Th
 |---|---|
 | **AI Architecture** | YOLOv8/v11 (Custom Trained) |
 | **Edge Computing** | Raspberry Pi 4 |
-| **Sensors & IoT** | DS18B20 (Contact Temp), MQ137 (Ammonia), DHT22 |
+| **Sensors & IoT** | DS18B20 (Contact Temp), MQ135 (Ammonia), DHT22 |
 | **Cloud & Database** | Firebase Realtime Database, Firestore |
 | **Connectivity** | MQTT Protocol (Local), Firebase Admin SDK (Cloud) |
 | **Software** | Python 3.11, HTML5/CSS3/JavaScript |
