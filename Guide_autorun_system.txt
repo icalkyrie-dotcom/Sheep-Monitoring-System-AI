@@ -1,0 +1,45 @@
+==========================================================
+Design of a Non-Invasive Sheep Health Classification System Based on Computer Vision - RUNNING GUIDE
+Developed by: Faisal Atmaja (Electrical Engineering)
+==========================================================
+
+Proyek ini dirancang untuk berjalan pada Raspberry Pi sebagai perangkat Edge AI, 
+namun dapat dijalankan di Windows untuk kebutuhan pengujian/dashboarding.
+
+1. PRASYARAT SISTEM:
+   - Python 3.11+
+   - Webcam atau Kamera Pi (CSI)
+   - Virtual Environment (direkomendasikan)
+   - File 'bebeee.pt' berada di folder /models/
+
+2. CARA MENJALANKAN DI WINDOWS (LAPTOP):
+   Jika Anda ingin menjalankan sistem di Windows, Anda bisa membuat file .bat 
+   dengan isi sebagai berikut (sesuaikan path proyek Anda):
+
+   -------------------------------------------------------
+   @echo off
+   cd /d "C:\PATH\KE\FOLDER\PROYEK\ANDA"
+   call venv\Scripts\activate
+   python Main.py
+   pause
+   -------------------------------------------------------
+
+3. CARA MENJALANKAN DI LINUX (RASPBERRY PI):
+   Untuk menjalankan secara otomatis saat booting di Raspberry Pi, 
+   gunakan skrip shell berikut:
+
+   -------------------------------------------------------
+   #!/bin/bash
+   cd /home/king/sheep_monitoring
+   source venv/bin/activate
+   python3 Main.py
+   -------------------------------------------------------
+
+4. PENTING (SEBELUM RUNNING):
+   - Pastikan 'firebase_key.json' sudah tersedia di folder utama.
+   - Pastikan Broker MQTT (Mosquitto) aktif jika menggunakan sensor hardware.
+   - Gunakan sensor suhu tubuh DS18B20 untuk data yang valid.
+
+==========================================================
+Copyright (c) 2026 - Faisal Atmaja Livestock AI Tech
+==========================================================

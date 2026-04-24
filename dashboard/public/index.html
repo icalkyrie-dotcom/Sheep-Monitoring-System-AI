@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Sheep Monitoring - Research Dashboard</title>
+    <style>
+        :root { --primary: #1e3799; --accent-blue: #0984e3; --accent-purple: #6c5ce7; --bg: #f4f7f9; --card-radius: 20px; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2d3436; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* Header */
+        .header { background: white; padding: 15px 25px; border-radius: var(--card-radius); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .online-tag { background: #e3fcef; color: #00875a; padding: 5px 15px; border-radius: 50px; font-weight: 800; font-size: 11px; text-transform: uppercase; }
+
+        /* Row Atas: Status Medis & Fase */
+        .grid-top { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .card { background: white; padding: 25px; border-radius: var(--card-radius); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .label { font-size: 10px; font-weight: 800; color: #b2bec3; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
+        .val-status { font-size: 42px; font-weight: 900; color: #2d3436; margin: 0; }
+
+        /* Main Layout */
+        .grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        /* Monitor Section */
+        .monitor-card { background: white; padding: 20px; border-radius: var(--card-radius); border-top: 5px solid var(--primary); }
+        #snapshotDisplay { width: 100%; height: 380px; object-fit: cover; border-radius: 15px; background: #000; margin-bottom: 10px; }
+        .nav-controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .btn-nav { padding: 8px 18px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: 800; cursor: pointer; font-size: 12px; }
+        .btn-nav:disabled { background: #dfe6e9; color: #b2bec3; }
+
+        /* Metrics Boxes */
+        .grid-sub-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .sub-card { padding: 20px; border-radius: 18px; background: #fff; border: 1px solid #f1f1f1; }
+        .border-blue { border-top: 5px solid var(--accent-blue); }
+        .border-purple { border-top: 5px solid var(--accent-purple); }
+        .main-val { font-size: 36px; font-weight: 900; margin: 10px 0; }
+        .sub-metric-row { display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #f1f1f1; padding-top: 10px; }
+        .sub-item-val { font-weight: 900; color: #2d3436; }
+
+        /* HISTORY LOG SIDE */
+        .history-card { height: 800px; display: flex; flex-direction: column; }
+        .day-navigation { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
+        .date-display { font-size: 11px; font-weight: 900; color: var(--primary); font-family: monospace; }
+        .btn-day { background: var(--primary); color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .log-list { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+
+        /* Folder Jam Akordeon */
+        .folder-hour { margin-bottom: 8px; border-radius: 10px; overflow: hidden; border: 1px solid #eef2ff; }
+        .folder-header { 
+            background: #eef2ff; color: var(--primary); padding: 12px 15px; 
+            font-size: 11px; font-weight: 900; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .folder-header::after { content: '▼'; font-size: 8px; }
+        .folder-content { display: none; background: white; padding: 5px 0; }
+        .folder-hour.open .folder-content { display: block; }
+        .folder-hour.open .folder-header::after { content: '▲'; }
+
+        /* Item Log */
+        .log-entry { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid #f8f9fa; cursor: pointer; }
+        .log-entry.active { background: #1e3799; color: white; }
+        .status-badge { font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
+        .bg-green { background: #e3fcef; color: #00875a; }
+        .bg-red { background: #ffebe6; color: #de350b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2 style="margin: 0; color: var(--primary); font-weight: 900;">🐑 CLOUD SHEEP MONITORING</h2>
+        <div class="online-tag">ONLINE</div>
+    </div>
+
+    <div class="grid-top">
+        <div class="card" id="healthCard" style="border-left: 10px solid #2ecc71;">
+            <div class="label">Status Kesehatan Medis</div>
+            <div class="val-status" id="statusKesehatan">WAITING...</div>
+        </div>
+        <div class="card">
+            <div class="label">Fase Pemantauan</div>
+            <div id="faseTeks" style="font-weight: 800; color: var(--primary); font-size: 18px;">--</div>
+        </div>
+    </div>
+
+    <div class="grid-main">
+        <div class="left-side">
+            <div class="monitor-card" style="margin-bottom: 20px;">
+                <div class="label">Monitor Visual Terakhir</div>
+                <img id="snapshotDisplay" src="" alt="Menunggu Snapshot...">
+                <div class="nav-controls">
+                    <button id="btnPrev" class="btn-nav" onclick="moveGallery(1)">◀ BACK</button>
+                    <span id="snapshotLabel" style="font-size: 11px; font-weight: 800;">--:--:--</span>
+                    <button id="btnNext" class="btn-nav" onclick="moveGallery(-1)">NEXT ▶</button>
+                </div>
+
+                <div class="grid-sub-metrics">
+                    <div class="sub-card border-blue">
+                        <div class="label" style="color: var(--accent-blue);">Kondisi Fisik Domba</div>
+                        <div class="main-val" id="aktivitasTeks" style="color: var(--accent-blue);">--</div>
+                        <div class="sub-metric-row">
+                            <span style="font-size: 12px; color: #636e72;">Suhu Tubuh</span>
+                            <span class="sub-item-val"><span id="suhuTubuh">0.0</span> °C</span>
+                        </div>
+                        <div class="sub-metric-row">
+                            <span style="font-size: 12px; color: #636e72;">Total Istirahat</span>
+                            <span class="sub-item-val"><span id="totalIstirahat">0</span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="sub-card border-purple">
+                        <div class="label" style="color: var(--accent-purple);">Lingkungan Kandang</div>
+                        <div class="main-val" id="amoniaVal" style="color: var(--accent-purple);">0.00 <small style="font-size: 14px;">ppm</small></div>
+                        <div class="sub-metric-row">
+                            <span style="font-size: 12px; color: #636e72;">Suhu Kandang</span>
+                            <span class="sub-item-val"><span id="suhuLingkungan">0.0</span> °C</span>
+                        </div>
+                        <div class="sub-metric-row">
+                            <span style="font-size: 12px; color: #636e72;">Kelembapan</span>
+                            <span class="sub-item-val"><span id="kelembapanVal">0</span>%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card history-card">
+            <div class="label" style="margin-bottom: 10px;">Riwayat Snapshot</div>
+            <div class="day-navigation">
+                <button class="btn-day" onclick="changeDay(-1)">◀ BACK</button>
+                <div class="date-display" id="displayDate">HARI INI</div>
+                <button class="btn-day" onclick="changeDay(1)">NEXT ▶</button>
+            </div>
+            <div id="logList" class="log-list"></div>
+            <div style="padding-top: 15px; border-top: 1px solid #f1f1f1; text-align: center; font-size: 10px; color: #b2bec3;">
+                Sinyal Cloud Terakhir: <span id="lastSeen">--:--:--</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getFirestore, doc, onSnapshot, collection, query, orderBy, where } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+    // --- FIREBASE CONFIGURATION (Masked for GitHub) ---
+    const firebaseConfig = { 
+        apiKey: "YOUR_API_KEY_HERE",
+        authDomain: "YOUR_AUTH_DOMAIN_HERE",
+        projectId: "YOUR_PROJECT_ID_HERE",
+        storageBucket: "YOUR_STORAGE_BUCKET_HERE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let historyData = [];
+    let currentIndex = 0;
+    let currentSearchDate = new Date();
+    currentSearchDate.setHours(0,0,0,0);
+
+    onSnapshot(doc(db, "monitoring", "status_sekarang"), (snapshot) => {
+        const data = snapshot.data();
+        if (data) {
+            document.getElementById("statusKesehatan").innerText = data.status_kesehatan;
+            document.getElementById("faseTeks").innerText = data.fase;
+            document.getElementById("aktivitasTeks").innerText = data.data_tubuh.aktivitas_saat_ini;
+            document.getElementById("suhuTubuh").innerText = data.data_tubuh.suhu.toFixed(1);
+            document.getElementById("totalIstirahat").innerText = data.data_tubuh.persentase_istirahat.toFixed(0);
+            document.getElementById("amoniaVal").innerHTML = `${data.data_lingkungan.amonia.toFixed(2)} <small style="font-size: 14px;">ppm</small>`;
+            document.getElementById("suhuLingkungan").innerText = data.data_lingkungan.suhu_kandang.toFixed(1);
+            document.getElementById("kelembapanVal").innerText = data.data_lingkungan.kelembapan.toFixed(0);
+            document.getElementById("lastSeen").innerText = data.last_update.toDate().toLocaleTimeString('id-ID', { hour12: false });
+            
+            const healthCard = document.getElementById("healthCard");
+            healthCard.style.borderLeft = data.status_kesehatan === "NORMAL" ? "10px solid #2ecc71" : "10px solid #e74c3c";
+        }
+    });
+
+    window.changeDay = (offset) => {
+        currentSearchDate.setDate(currentSearchDate.getDate() + offset);
+        const isToday = currentSearchDate.toDateString() === new Date().toDateString();
+        document.getElementById("displayDate").innerText = isToday ? "HARI INI" : currentSearchDate.toLocaleDateString('id-ID');
+        loadHistory();
+    };
+
+    function loadHistory() {
+        const start = new Date(currentSearchDate);
+        start.setHours(0,0,0,0);
+        const end = new Date(currentSearchDate);
+        end.setHours(23,59,59,999);
+
+        const q = query(collection(db, "history_snapshots"), 
+                  where("timestamp", ">=", start), 
+                  where("timestamp", "<=", end), 
+                  orderBy("timestamp", "desc"));
+
+        onSnapshot(q, (snapshot) => {
+            historyData = [];
+            const logList = document.getElementById("logList");
+            logList.innerHTML = "";
+            let currentFolder = null;
+            let lastHour = -1;
+
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                const globalIdx = historyData.length;
+                historyData.push(item);
+                
+                const date = item.timestamp.toDate();
+                const hour = date.getHours();
+
+                if (hour !== lastHour) {
+                    lastHour = hour;
+                    currentFolder = document.createElement("div");
+                    const isOpen = (logList.children.length === 0) ? "open" : "";
+                    currentFolder.className = `folder-hour ${isOpen}`;
+                    currentFolder.innerHTML = `
+                        <div class="folder-header" onclick="this.parentElement.classList.toggle('open')">
+                            📁 JAM ${hour.toString().padStart(2, '0')}:00 - ${(hour+1).toString().padStart(2, '0')}:00
+                        </div>
+                        <div class="folder-content"></div>
+                    `;
+                    logList.appendChild(currentFolder);
+                }
+
+                const content = currentFolder.querySelector(".folder-content");
+                const timeStr = date.toLocaleTimeString('id-ID', { hour12: false });
+                const div = document.createElement("div");
+                div.className = "log-entry";
+                div.innerHTML = `
+                    <div style="font-size: 13px;"><b>${timeStr}</b><br><small style="color:#aaa;">${item.aktivitas}</small></div>
+                    <span class="status-badge ${item.status_kesehatan === 'NORMAL' ? 'bg-green' : 'bg-red'}">${item.status_kesehatan}</span>
+                `;
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    showImage(globalIdx);
+                };
+                content.appendChild(div);
+            });
+
+            if (historyData.length > 0) showImage(0);
+            else logList.innerHTML = '<div style="text-align:center; padding-top:50px; color:#ccc;">Belum ada data snapshot.</div>';
+        });
+    }
+
+    window.showImage = (index) => {
+        currentIndex = index;
+        const data = historyData[index];
+        document.getElementById("snapshotDisplay").src = data.image_url;
+        document.getElementById("snapshotLabel").innerText = data.timestamp.toDate().toLocaleString('id-ID', { hour12: false });
+        document.querySelectorAll('.log-entry').forEach((el, i) => el.classList.toggle('active', i === index));
+        document.getElementById("btnPrev").disabled = index >= historyData.length - 1;
+        document.getElementById("btnNext").disabled = index <= 0;
+    };
+
+    window.moveGallery = (step) => {
