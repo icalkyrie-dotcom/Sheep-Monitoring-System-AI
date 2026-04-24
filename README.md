@@ -6,7 +6,7 @@ An integrated **Edge AI and IoT** solution for real-time livestock health monito
 
 ### 🖥️ Live Research Dashboard
 <img width="1398" height="591" alt="Screenshot 2026-04-14 184318" src="https://github.com/user-attachments/assets/a635cd71-b564-4779-8596-b7164952cdcc" />
-*Real-time visualization of health status, behavior classification, and environmental metrics.*
+Real-time visualization of health status, behavior classification, and environmental metrics.
 
 ---
 
