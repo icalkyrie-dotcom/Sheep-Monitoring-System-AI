@@ -22,7 +22,7 @@ This system is designed as a multi-layer architecture combining Edge AI processi
    * Sensors collect environmental and physiological data:
      * **DS18B20** → body temperature.
      * **DHT22** → ambient temperature & humidity.
-     * **MQ137** → ammonia levels.
+     * **MQ135** → ammonia levels.
 2. **Edge AI Processing (Raspberry Pi 4)**
    * YOLO model processes video stream for behavior detection (grazing, walking, resting).
    * Sensor data is fused with detection results to generate health insights.
