@@ -13,6 +13,27 @@ Real-time visualization of health status, behavior classification, and environme
 ## 🚀 Overview
 Traditional livestock monitoring is labor-intensive and prone to human error. This project automates the surveillance process using **Computer Vision** at the edge and **Sensor Fusion** for health assessment, providing a centralized cloud-backed dashboard for remote monitoring.
 
+## 🧠 System Architecture
+This system is designed as a multi-layer architecture combining Edge AI processing, IoT sensing, and cloud-based monitoring to enable real-time livestock analysis.
+
+🔄 **Data Flow:**
+1. **Data Acquisition (Edge Layer)**
+   * Camera captures real-time video of livestock.
+   * Sensors collect environmental and physiological data:
+     * **DS18B20** → body temperature.
+     * **DHT22** → ambient temperature & humidity.
+     * **MQ137** → ammonia levels.
+2. **Edge AI Processing (Raspberry Pi 4)**
+   * YOLO model processes video stream for behavior detection (grazing, walking, resting).
+   * Sensor data is fused with detection results to generate health insights.
+3. **Communication Layer (MQTT + Cloud Sync)**
+   * Processed data is transmitted via MQTT for local communication.
+   * Simultaneously synced to Firebase (Realtime Database & Firestore) for cloud storage.
+4. **Cloud & Visualization Layer**
+   * Firebase stores structured monitoring data.
+   * Web dashboard retrieves and visualizes real-time system data.
+   * Users can monitor livestock behavior, health status, and environment remotely.
+
 ### 🛠️ Tech Stack
 | Category | Technology |
 |---|---|
